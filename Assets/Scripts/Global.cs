@@ -37,6 +37,13 @@ public class Global : MonoBehaviour
         }
     }
 
-    
+    private void Start()
+    {
+        Cursor.visible = false;
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 24;
+        Application.runInBackground = false;
+    }
+
 
 }

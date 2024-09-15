@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] AudioClip[] clips;
+    [SerializeField] GameController controller;
+    public bool MatchEnded = false;
     void Start()
     {
         if (!GameObject.Find("Player1")) gameObject.name = "Player1";
@@ -22,6 +24,8 @@ public class PlayerController : MonoBehaviour
         transform.position = PositionPH.transform.position;
         transform.rotation = PositionPH.transform.rotation;
         PositionPH.GetComponent<MeshRenderer>().enabled = false;
+
+        controller = GameObject.Find("GameManager").GetComponent<GameController>();
     }
 
     public void GunshotSFX()
@@ -36,5 +40,13 @@ public class PlayerController : MonoBehaviour
         AudioSource audioSource = GetComponent<AudioSource>();
         audioSource.clip = clips[1];
         audioSource.Play();
+    }
+
+    private void OnExit()
+    {
+        if (MatchEnded)
+        {
+            controller.GoToMainMenu();
+        }
     }
 }

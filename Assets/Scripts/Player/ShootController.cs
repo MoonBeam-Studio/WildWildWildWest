@@ -9,12 +9,14 @@ public class ShootController : MonoBehaviour
     private CountDownController _countDownController;
     private WinnerController _winnerController;
     private PlayerUIController _playerUIController;
+    private PlayerController _playerController;
     private int CountDown;
     private bool AlreadyShooted = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        _playerController = GetComponent<PlayerController>();
         GameObject.Find("Global").TryGetComponent<CountDownController>(out _countDownController);
         GameObject.Find("Global").TryGetComponent<WinnerController>(out _winnerController);
         GameObject.Find("PlayerUI").TryGetComponent<PlayerUIController>(out _playerUIController);
@@ -30,21 +32,18 @@ public class ShootController : MonoBehaviour
 
     public void OnShoot()
     {
-        if (CountDown > 0)
-        {
-            Debug.Log("Encasquillado!");
-            return;
-        }
+        if (_playerController.MatchEnded) return;
+        if (CountDown > 0) return;
         Shoot();
     }
     
     private void Shoot()
     {
         if (AlreadyShooted) return;
-        Debug.Log("Disparo");
         string[] ShootData = {gameObject.name, Time.time.ToString()};
         AlreadyShooted = true;
         _winnerController.StoreShoot(ShootData);
+        _countDownController.StopDraw();
     }
 
     private void OnJoinRematch()

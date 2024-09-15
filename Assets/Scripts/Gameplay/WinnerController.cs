@@ -2,38 +2,54 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class WinnerController : MonoBehaviour
 {
     [SerializeField] WinnerUIController winnerUIController;
     [SerializeField] PlayerUIController playerUIController;
+    [SerializeField] PlayerController playerController1 = null, playerController2 = null;
     private Dictionary<string, float> ShootData = new Dictionary<string, float>();
     private float ShootTime;
+    //string[] winnerData;
+    bool PlayerShot;
 
+
+    private void Update()
+    {
+        if (playerController1 == null) playerController1 = GameObject.Find("Player2").GetComponent<PlayerController>();
+        if (playerController2 == null) playerController2 = GameObject.Find("Player2").GetComponent<PlayerController>();
+    }
     public void StoreShoot(string[] shoot)
     {
         if (ShootData.Count <= 0) StartCoroutine(WaitOtherPlayer());
         ShootData.Add(shoot[0], float.Parse(shoot[1]));
-        Debug.Log($"{ShootData.First().Key} - {ShootData.First().Value}");
+        PlayerShot = true;
     }
 
     private void DeclareWinner()
     {
-        string winnerName = ShootData.First().Key;
-        string winnerTime = GetWinnerTime().ToString();
+        string winnerName = null;
+        string winnerTime = null;
+
+        if (PlayerShot)
+        {
+            winnerName = ShootData.First().Key;
+            winnerTime = GetWinnerTime().ToString();
+
+            GameObject.Find(winnerName).GetComponent<Animator>().SetTrigger("Shoot");
+            StartCoroutine(DieAnimation());
+        }
         string[] winnerData = { winnerName, winnerTime };
-
-        GameObject.Find(winnerName).GetComponent<Animator>().SetTrigger("Shoot");
-        StartCoroutine(DieAnimation());
-
+        Debug.Log(winnerData);
+        playerController1.MatchEnded = true;
+        playerController2.MatchEnded = true;
         winnerUIController.ShowWinner(winnerData);
         playerUIController.ShowPlayers();
         Global.Instance.MatchEndedEvent();
     }
 
-    private IEnumerator WaitOtherPlayer()
+    public IEnumerator WaitOtherPlayer()
     {
         yield return new WaitForSeconds(1f);
         DeclareWinner();

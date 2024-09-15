@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class CountDownController : MonoBehaviour
 {
-    int CountDownTimmer = 1;
+    int CountDownTimmer = 10;
+    bool PlayerShot;
     [SerializeField] WinnerController winnerController;
     [SerializeField] CountDownUIController countDownUIController;
     [SerializeField] PlayerUIController playerUIController;
@@ -38,9 +39,23 @@ public class CountDownController : MonoBehaviour
                 winnerController.SetShootTime(Time.time);
                 audioSource.clip = audioClips[1];
                 audioSource.Play();
+                StartCoroutine(DrawTimer());
                 break;
             }
             yield return null;
         }
     }
+
+    private IEnumerator DrawTimer()
+    {
+        yield return new WaitForSeconds(3);
+        if (!PlayerShot)
+        {
+            audioSource.clip = audioClips[2];
+            audioSource.Play();
+            StartCoroutine(winnerController.WaitOtherPlayer());
+        }
+    }
+
+    public void StopDraw() => PlayerShot = true;
 }
